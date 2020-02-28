@@ -1,0 +1,82 @@
+sudo: required
+group: bluezone
+language: java
+jdk: openjdk8
+dist: trusty
+dist: xenial
+matrix:
+  include:
+    - os: linux
+      env: CODEWIND_ENVIRONMENT=Che
+    - os: linux
+      env: CODEWIND_ENVIRONMENT=VSCode
+services:
+  - docker
+addons:
+  apt:
+    sources:
+      - sourceline: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable'
+        key_url: 'https://download.docker.com/linux/ubuntu/gpg'
+    packages:
+      - docker-ce
+addons:
+   chrome: stable
+addons:
+  firefox: latest
+install: true
+
+cache:
+   directories:
+      - $HOME/.m2
+env:
+  - DOCKER_COMPOSE_VERSION=1.24.1
+before_install:
+  - sudo apt-get update
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin     
+  - sudo apt-get install sshpass
+  - sudo apt-get install xvfb
+script:
+   - export REMOTE_HOST_PWD="$LOGS_HOST_PWD"
+   - export REMOTE_HOST_USER="$LOGS_HOST_USER"
+   - export REMOTE_HOST_NAME="$LOGS_HOST_NAME"
+   - export OS_UNIX_FIREFOX_BINARY_LOCATION
+   - export TEST_RESULTS_DIR="/opt/CodewindSVTResults/$TRAVIS_BUILD_ID"
+   - export GITHUB_USER="$GITHUB_USER"
+   - export GITHUB_TOKEN="$GITHUB_TOKEN"
+   - echo "$TRAVIS_BUILD_ID"
+   - echo "$TRAVIS_BUILD_NUMBER"
+   - echo "$TRAVIS_BUILD_WEB_URL"
+   - echo "$REMOTE_HOST_PWD"
+   - echo "$REMOTE_HOST_USER"
+   - echo "$REMOTE_HOST_NAME"
+   - echo "Build logs - http://${REMOTE_HOST_NAME}/opt/travisbuildlogs/${TRAVIS_BUILD_ID}"
+   - echo `docker version`
+   - echo `google-chrome -version`
+   - echo `which firefox`
+   - echo `firefox -version`
+   - echo `which mvn`
+   - echo `mvn -version`
+   - echo `java -version`
+   - echo `pwd`
+   - echo "$PATH"
+   - docker ps -a
+   - docker images
+   - export $(dbus-launch)
+   - export NSS_USE_SHARED_DB=ENABLED
+   - export CODEWIND_ENVIRONMENT="$CODEWIND_ENVIRONMENT"
+   - echo "Codewind Environment : $CODEWIND_ENVIRONMENT"
+#   - sudo apt list xvfb -a
+   - ls -lart
+#   - which xvfb-run
+#   - xvfb-run echo "$TRAVIS_BUILD_ID"
+#   - xvfb-run --server-args="-screen 0 1280x1024x16" ./scripts/run-test.sh 2>&1 | tee test-result.txt
+#   - mvn clean -Dtest=SVTGoProject test site -DgenerateReports=false surefire-report:report
+#   - mkdir -p $TEST_RESULTS_DIR
+#   - cp -fr {target/cw-output,target/site,target/surefire-reports} $TEST_RESULTS_DIR
+#   - ls -lart ${TEST_RESULTS_DIR}
+#   - echo "sshpass -p ${REMOTE_HOST_PWD} scp -o StrictHostKeyChecking=no -r -p ${TEST_RESULTS_DIR} ${REMOTE_HOST_USER}@${REMOTE_HOST_NAME}:/opt/travisbuildlogs/"
+#   - sshpass -p ${REMOTE_HOST_PWD} scp -o StrictHostKeyChecking=no -r -p ${TEST_RESULTS_DIR} ${REMOTE_HOST_USER}@${REMOTE_HOST_NAME}:/opt/travisbuildlogs/
+#   - echo "Build logs - http://${REMOTE_HOST_NAME}/opt/travisbuildlogs/${TRAVIS_BUILD_ID}"

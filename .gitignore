@@ -1,0 +1,28 @@
+#=========================================================#
+#                  SVT Automation Tests                   #
+#   Gitignore file to use with Codewind for Eclipse Che   #
+#=========================================================#
+node_modules/
+results/
+junit.xml
+src/main/resources/my.test.properties
+src/test/java/junit/projects/myprojects.json
+
+# Generated Files 
+.*.swp
+.vscode/
+.factorypath
+.metadata
+.classpath
+.DS_Store
+
+# Directories
+/bin/
+/target/
+/build/
+/.settings/
+/.project
+/.apt_generated/
+/scripts/*
+!/scripts/install_code-server_codewind_mac-linux-os.sh
+!/scripts/prepare-clean_automation-tests_mac-linux.sh
